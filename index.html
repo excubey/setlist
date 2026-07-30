@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"><title>Setlist</title></head>
+  <body>
+    <pre id="out">loading…</pre>
+    <script src="app.js"></script>
+    <script>
+      fetch('fixtures/golden.txt')
+        .then((r) => r.text())
+        .then(decodePayload)
+        .then((p) => { document.getElementById('out').textContent = JSON.stringify(p, null, 2); })
+        .catch((e) => { document.getElementById('out').textContent = 'FAILED: ' + e.message; });
+    </script>
+  </body>
+</html>
