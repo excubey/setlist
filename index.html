@@ -1,15 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head><meta charset="utf-8"><title>Setlist</title></head>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Setlist</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
   <body>
-    <pre id="out">loading…</pre>
+    <main id="app" hidden>
+      <header class="bill">
+        <p class="eyebrow">Setlist</p>
+        <h1 id="instructor"></h1>
+        <p id="venue"></p>
+      </header>
+      <ol id="tracks" class="tracks"></ol>
+      <section id="metrics" class="metrics" hidden></section>
+      <footer class="cta">
+        <a href="https://apps.apple.com/app/spintracker/id000000000">Tracked with SpinTracker</a>
+      </footer>
+    </main>
+    <main id="fallback" class="fallback">
+      <h1>This link is incomplete</h1>
+      <p>The setlist data is missing or damaged. Ask whoever shared it for a fresh link.</p>
+    </main>
     <script src="app.js"></script>
-    <script>
-      fetch('fixtures/golden.txt')
-        .then((r) => r.text())
-        .then(decodePayload)
-        .then((p) => { document.getElementById('out').textContent = JSON.stringify(p, null, 2); })
-        .catch((e) => { document.getElementById('out').textContent = 'FAILED: ' + e.message; });
-    </script>
   </body>
 </html>
