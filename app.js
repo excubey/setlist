@@ -36,12 +36,19 @@ async function decodePayload(fragment) {
   return payload;
 }
 
-/** Exact track page when we have catalog identity, search otherwise. */
+/** Exact track page when we have catalog identity, search otherwise. Returns
+ *  null for a blank/whitespace-only track, same as spotifySearchURL, so a
+ *  blank track hides both links rather than leaving a live Apple Music
+ *  search for nothing. */
 function appleMusicURL(track) {
   if (track.m) {
     return 'https://music.apple.com/song/' + encodeUnreserved(String(track.m));
   }
-  const terms = [track.n, track.a].filter(Boolean).join(' ');
+  const terms = [track.n, track.a]
+    .map((s) => (s || '').trim())
+    .filter(Boolean)
+    .join(' ');
+  if (!terms) return null;
   return 'https://music.apple.com/search?term=' + encodeUnreserved(terms);
 }
 
@@ -81,12 +88,15 @@ function renderTrack(track) {
   const links = document.createElement('div');
   links.className = 'track-links';
 
-  const apple = document.createElement('a');
-  apple.href = appleMusicURL(track);
-  apple.target = '_blank';
-  apple.rel = 'noopener';
-  apple.textContent = 'Apple Music';
-  links.append(apple);
+  const appleHref = appleMusicURL(track);
+  if (appleHref) {
+    const apple = document.createElement('a');
+    apple.href = appleHref;
+    apple.target = '_blank';
+    apple.rel = 'noopener';
+    apple.textContent = 'Apple Music';
+    links.append(apple);
+  }
 
   const spotifyHref = spotifySearchURL(track);
   if (spotifyHref) {
