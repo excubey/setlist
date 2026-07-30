@@ -10,8 +10,8 @@ body {
   max-width: 640px; margin-inline: auto;
 }
 .eyebrow { margin: 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; }
-.bill p:last-child { margin: 0 0 28px; color: var(--muted); font-size: 14px; }
+h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; overflow-wrap: anywhere; }
+.bill p:last-child { margin: 0 0 28px; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
 .tracks { list-style: none; margin: 0; padding: 0; counter-reset: track; }
 .track {
   display: flex; align-items: center; gap: 12px;
@@ -26,7 +26,9 @@ h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; }
 .track-artist { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
 .track-links { display: flex; gap: 8px; flex-shrink: 0; }
 .track-links a {
-  padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 7px 14px;
+  border: 1px solid var(--line); border-radius: 999px;
   font-size: 12px; text-decoration: none; color: var(--fg); white-space: nowrap;
 }
 .metrics { margin-top: 24px; color: var(--muted); font-size: 14px; }
