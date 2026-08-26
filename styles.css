@@ -36,3 +36,334 @@ h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; overflow-wrap: anywh
 .fallback { text-align: center; padding-top: 56px; }
 .fallback h1 { font-size: 22px; }
 .fallback p { color: var(--muted); }
+
+/* ==========================================================================
+   Landing — shown at the bare domain, when there is no payload to render.
+
+   Everything below is scoped under #landing or body.is-landing so the setlist
+   renderer above keeps its own light/dark tokens untouched. The two states
+   share a document but not a palette: a setlist is someone else's ride and
+   stays quiet; this is the pitch and looks like the app.
+
+   The colours are not decoration. They are SpinTracker's six effort zones,
+   lifted from ShareCardSections.swift, and the ribbon climbs them in order —
+   so the spine of the hero encodes the shape of a real class.
+   ========================================================================== */
+
+#landing {
+  --ink: #000;
+  --surface: #0e1013;
+  --edge: #1e2126;
+  --text: #f4f6f8;
+  --dim: #8b929c;
+
+  --recovery:  #7f8086;
+  --endurance: #10acfa;
+  --tempo:     #1cc584;
+  --threshold: #dccb1a;
+  --vo2:       #fb8304;
+  --anaerobic: #f81f4e;
+
+  --display: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --data: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  color: var(--text);
+  font-family: var(--body);
+  max-width: 940px;
+  margin-inline: auto;
+  padding: 0 24px 96px;
+}
+
+body.is-landing {
+  /* Literal, not var(--ink): the landing tokens are scoped to #landing, which
+     is this element's child, so they are not in scope here. */
+  background: #000;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+
+#landing .eyebrow {
+  font-family: var(--data);
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 0;
+}
+
+/* --- Hero --------------------------------------------------------------- */
+
+#landing .hero { padding: 88px 0 64px; }
+
+#landing .hero h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(38px, 7.4vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -.025em;
+  margin: 20px 0 0;
+  max-width: 15ch;
+}
+
+#landing .lede {
+  font-size: clamp(17px, 2.1vw, 20px);
+  line-height: 1.5;
+  color: var(--dim);
+  max-width: 46ch;
+  margin: 24px 0 0;
+}
+
+/* --- The ribbon: the one thing this page is remembered by ---------------- */
+
+#landing .section-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  margin: 0 0 32px;
+  max-width: 30ch;
+  color: var(--dim);
+}
+#landing .section-title em { font-style: normal; color: var(--text); }
+
+#landing .ride {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Capped narrower than the container so the bpm sits near the song it
+     belongs to. At full width the two drifted to opposite edges and stopped
+     reading as one row. */
+  max-width: 760px;
+}
+
+#landing .ride-row {
+  position: relative;
+  display: grid;
+  /* No column for the ribbon: it is positioned out of flow (see .ride-bar),
+     so reserving a track for it would leave the track empty and shove the
+     song title into the 6px gutter. The gutter is padding instead. */
+  grid-template-columns: 1fr auto auto;
+  padding-left: 26px;
+  align-items: center;
+  gap: 0 20px;
+  /* --span is how long the track ran. Taller row = longer song, so the ribbon
+     carries the rhythm of the class rather than an even stripe. */
+  min-height: calc(46px + (var(--span) * 7px));
+}
+
+/* The separator starts AFTER the bar column, so the segments stack into one
+   unbroken spine while the rows still read as separate. A plain border-top on
+   the row cut straight through the ribbon and turned it into six loose ticks —
+   which is not what the app draws. */
+#landing .ride-row + .ride-row::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 26px;
+  border-top: 1px solid var(--edge);
+}
+
+/* Absolutely positioned, not a stretched grid item.
+
+   As a grid item it could only fill its own TRACK, and `align-items: center`
+   centres the tracks inside a row whose min-height is larger — so on any row
+   where the content is shorter than min-height (desktop) or wraps onto a
+   second track (mobile), the segment fell short of the row edges and the
+   spine broke into ticks. Out of flow it spans the row box itself, which is
+   what "one continuous ribbon" actually requires. The 6px grid column stays
+   as the reserved gutter. */
+#landing .ride-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--zone);
+}
+#landing .ride-row:first-child .ride-bar { border-radius: 3px 3px 0 0; }
+#landing .ride-row:last-child .ride-bar { border-radius: 0 0 3px 3px; }
+
+#landing .ride-song {
+  font-size: 17px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#landing .ride-song em {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--dim);
+}
+
+#landing .ride-bpm {
+  font-family: var(--data);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  white-space: nowrap;
+}
+#landing .ride-bpm em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--dim);
+  margin-left: 4px;
+}
+
+#landing .ride-zone {
+  font-family: var(--data);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--zone);
+  text-align: right;
+  min-width: 9ch;
+}
+
+/* The power song is the product's whole claim, so it is the one row that is
+   allowed to shout — and it shouts in its own zone colour, not a new one. */
+#landing .ride-row.is-power .ride-song { font-weight: 700; }
+#landing .ride-row.is-power .ride-zone::after {
+  content: " ★";
+  letter-spacing: 0;
+}
+
+#landing .ride-note {
+  margin: 24px 0 0;
+  color: var(--dim);
+  font-size: 15px;
+  max-width: 48ch;
+}
+
+/* --- What it does ------------------------------------------------------- */
+
+#landing .what {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px;
+  margin-top: 104px;
+}
+#landing .what article {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: 14px;
+  padding: 26px 24px 28px;
+}
+#landing .what h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -.01em;
+  margin: 0 0 10px;
+}
+#landing .what p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--dim);
+}
+
+/* --- Screens ------------------------------------------------------------ */
+
+#landing .shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 36px;
+  margin-top: 104px;
+}
+#landing .shots figure { margin: 0; }
+#landing .shots img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 20px;
+  border: 1px solid var(--edge);
+}
+#landing .shots figcaption {
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--dim);
+}
+
+/* --- Get it ------------------------------------------------------------- */
+
+#landing .get {
+  margin-top: 104px;
+  padding-top: 40px;
+  border-top: 1px solid var(--edge);
+  text-align: center;
+}
+#landing .get-status {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(24px, 4vw, 34px);
+  letter-spacing: -.02em;
+  margin: 0;
+}
+#landing .get-note {
+  font-family: var(--data);
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 12px 0 0;
+}
+#landing .get-links {
+  margin-top: 28px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#landing .get-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+}
+#landing .get-links a:hover { border-color: var(--endurance); }
+
+#landing a:focus-visible,
+#app a:focus-visible {
+  outline: 2px solid var(--endurance, #10acfa);
+  outline-offset: 3px;
+}
+
+/* No entrance animation on the ribbon, deliberately.
+
+   It had one: segments scaling up from scaleY(0), staggered down the spine.
+   The problem is what that costs when the animation does not run — the bar's
+   ONLY route to being visible was the animation finishing, so any context
+   where the timeline does not advance (a background tab on first paint, a
+   throttled renderer) painted the page's signature element as nothing at all.
+   Measured: playState "running", currentTime pinned at 0, transform
+   matrix(1,0,0,0,0,0).
+
+   A decorative flourish is not worth a fail-open on the one thing this page is
+   built around, and the ribbon reads perfectly well standing still.
+*/
+
+@media (max-width: 560px) {
+  #landing { padding: 0 18px 72px; }
+  #landing .hero { padding: 56px 0 44px; }
+  #landing .ride-row {
+    grid-template-columns: 1fr auto;
+    row-gap: 6px;
+  }
+  #landing .ride-zone {
+    grid-column: 1 / -1;
+    text-align: left;
+    min-width: 0;
+  }
+  #landing .what, #landing .shots, #landing .get { margin-top: 72px; }
+}

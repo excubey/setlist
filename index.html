@@ -3,7 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Setlist</title>
+    <title>SpinTracker — every ride is a playlist</title>
+    <meta name="description" content="SpinTracker listens while you ride, names the songs playing around you, and ties each one to the effort you actually put in.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -15,10 +19,140 @@
       </header>
       <ol id="tracks" class="tracks"></ol>
       <section id="metrics" class="metrics" hidden></section>
+      <!--
+        Points at this page's own root, which renders the landing pitch when
+        there is no payload in the fragment.
+
+        It was https://apps.apple.com/app/spintracker/id000000000, a placeholder
+        Adam ID that 404s — so the one link here whose job is to turn a viewer
+        into an install dead-ended (SpinTracker-wrsl). The real Adam ID already
+        exists in App Store Connect, but apps.apple.com does not serve a page
+        for it until the app is released, so using it now would only swap one
+        404 for another.
+
+        Deliberately a relative "/" and not the App Store: on release day the
+        landing section below gains a real App Store badge and this link keeps
+        working, so it never has to change again. AppConfiguration.appStoreURL
+        in the app repo still carries the same placeholder and is still guarded
+        by StoryContentURLTests; that one is resolved when the app goes live.
+      -->
       <footer class="cta">
-        <a href="https://apps.apple.com/app/spintracker/id000000000">Tracked with SpinTracker</a>
+        <a href="/">Tracked with SpinTracker</a>
       </footer>
     </main>
+
+    <main id="landing" hidden>
+      <header class="hero">
+        <p class="eyebrow">SpinTracker · iPhone</p>
+        <h1>Every spin class is a playlist you never wrote down.</h1>
+        <p class="lede">
+          SpinTracker listens while you ride, names the songs playing around you,
+          and ties each one to the effort you actually put in.
+        </p>
+      </header>
+
+      <section class="ride-section" aria-labelledby="ride-heading">
+        <h2 id="ride-heading" class="section-title">
+          A setlist is the half you can see.
+          <em>This is the other half.</em>
+        </h2>
+
+        <ol class="ride">
+          <li class="ride-row" style="--zone: var(--recovery); --span: 3">
+            <span class="ride-bar" aria-hidden="true"></span>
+            <span class="ride-song">Neon Cadence<em>Halcyon Drive</em></span>
+            <span class="ride-bpm">106<em>bpm</em></span>
+            <span class="ride-zone">Recovery</span>
+          </li>
+          <li class="ride-row" style="--zone: var(--endurance); --span: 4">
+            <span class="ride-bar" aria-hidden="true"></span>
+            <span class="ride-song">Afterburner<em>Kite Season</em></span>
+            <span class="ride-bpm">124<em>bpm</em></span>
+            <span class="ride-zone">Endurance</span>
+          </li>
+          <li class="ride-row" style="--zone: var(--tempo); --span: 4">
+            <span class="ride-bar" aria-hidden="true"></span>
+            <span class="ride-song">Glasshouse<em>Ruby Ordinance</em></span>
+            <span class="ride-bpm">138<em>bpm</em></span>
+            <span class="ride-zone">Tempo</span>
+          </li>
+          <li class="ride-row" style="--zone: var(--threshold); --span: 5">
+            <span class="ride-bar" aria-hidden="true"></span>
+            <span class="ride-song">Uphill Both Ways<em>The Threshold</em></span>
+            <span class="ride-bpm">151<em>bpm</em></span>
+            <span class="ride-zone">Threshold</span>
+          </li>
+          <li class="ride-row is-power" style="--zone: var(--vo2); --span: 6">
+            <span class="ride-bar" aria-hidden="true"></span>
+            <span class="ride-song">Long Way Down<em>Palace Wire</em></span>
+            <span class="ride-bpm">164<em>bpm</em></span>
+            <span class="ride-zone">VO2 Max</span>
+          </li>
+          <li class="ride-row" style="--zone: var(--recovery); --span: 3">
+            <span class="ride-bar" aria-hidden="true"></span>
+            <span class="ride-song">Second Wind<em>Marta Vale</em></span>
+            <span class="ride-bpm">112<em>bpm</em></span>
+            <span class="ride-zone">Recovery</span>
+          </li>
+        </ol>
+
+        <p class="ride-note">
+          The one you worked hardest for gets called out. Ride to it often enough
+          and it becomes a power song.
+        </p>
+      </section>
+
+      <section class="what" aria-label="What SpinTracker does">
+        <article>
+          <h3>Track the ride</h3>
+          <p>
+            Pair any standard Bluetooth heart rate strap, cadence sensor or power
+            meter, and they reconnect on their own next time. No sensors? The ride
+            still records its whole music history and duration.
+          </p>
+        </article>
+        <article>
+          <h3>Find your power songs</h3>
+          <p>
+            Every track gets its own effort profile — average and peak heart rate,
+            cadence, and where it landed in the class. Over enough rides your
+            library surfaces the songs you consistently ride hardest to.
+          </p>
+        </article>
+        <article>
+          <h3>Keep the music</h3>
+          <p>
+            Turn any ride's tracklist into an Apple Music playlist in one tap. Take
+            the whole class or just the songs that earned it.
+          </p>
+        </article>
+      </section>
+
+      <section class="shots" aria-label="Screens from the app">
+        <figure>
+          <img src="assets/shot-ride.png" alt="The live ride screen naming the song currently playing, with heart rate, crank watts and cadence below it." width="660" height="1434" loading="lazy" decoding="async">
+          <figcaption>Songs are named as they play.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/shot-library.png" alt="The song library, showing a power song and a list of tracks each with its own effort score and play count." width="660" height="1434" loading="lazy" decoding="async">
+          <figcaption>Across rides, the ones that cost you most rise to the top.</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/shot-card.png" alt="The share card builder, showing a ride card sized for Instagram Stories." width="660" height="1434" loading="lazy" decoding="async">
+          <figcaption>Then it becomes something worth sharing.</figcaption>
+        </figure>
+      </section>
+
+      <footer class="get">
+        <p class="get-status">Coming to the App Store</p>
+        <p class="get-note">iPhone · iOS 26.2 or later</p>
+        <nav class="get-links">
+          <a href="https://excubey.github.io/spintracker-legal/support">Support</a>
+          <a href="https://excubey.github.io/spintracker-legal/privacy-policy">Privacy</a>
+        </nav>
+      </footer>
+    </main>
+
     <main id="fallback" class="fallback">
       <h1>This link is incomplete</h1>
       <p>The setlist data is missing or damaged. Ask whoever shared it for a fresh link.</p>
