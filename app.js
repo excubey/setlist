@@ -63,11 +63,18 @@ function spotifySearchURL(track) {
   return 'https://open.spotify.com/search/' + encodeUnreserved(terms);
 }
 
+/** Thrown when the URL carries no fragment at all — someone typed the domain,
+ *  or a share stripped the fragment. Its own type because that visitor gets
+ *  the landing pitch, while a fragment that IS present and does not decode is
+ *  a broken link and gets told so. Before this split both said "This link is
+ *  incomplete", which made the front door of the site an error message. */
+class NoPayload extends Error {}
+
 /** Separated from render() on purpose: a future backend adds a second loader
  *  reading /r/<id> and nothing else about this page changes. */
 async function loadPayload() {
   const fragment = window.location.hash.slice(1);
-  if (!fragment) throw new Error('no payload');
+  if (!fragment) throw new NoPayload('no payload');
   return decodePayload(fragment);
 }
 
@@ -141,8 +148,25 @@ function render(payload) {
   document.getElementById('app').hidden = false;
 }
 
-loadPayload().then(render).catch(() => {
-  // Fallback is visible by default, so a failure needs no action beyond
-  // not showing the app. A blank screen would be indistinguishable from
-  // the site being down (cf. SpinTracker-4qh).
+function showLanding() {
+  document.body.classList.add('is-landing');
+  document.getElementById('fallback').hidden = true;
+  document.getElementById('landing').hidden = false;
+}
+
+// The setlist's own CTA points at "/", which differs from "/#payload" only by
+// the fragment — so the browser performs a SAME-DOCUMENT navigation, this
+// script never re-runs, and the page sits there looking broken. Reloading on
+// hashchange re-runs the decision below from scratch, which also avoids
+// render() appending a second copy of the tracklist to the list it already
+// filled.
+window.addEventListener('hashchange', () => window.location.reload());
+
+loadPayload().then(render).catch((error) => {
+  // Fallback is visible by default, so a DAMAGED payload needs no action
+  // beyond not showing the app. A blank screen would be indistinguishable
+  // from the site being down (cf. SpinTracker-4qh) — which is also why the
+  // landing is opt-in here rather than the default: if this script never
+  // runs at all, a visitor still sees something that explains itself.
+  if (error instanceof NoPayload) showLanding();
 });
