@@ -21,20 +21,12 @@
       <section id="metrics" class="metrics" hidden></section>
       <!--
         Points at this page's own root, which renders the landing pitch when
-        there is no payload in the fragment.
+        the fragment carries no payload.
 
-        It was https://apps.apple.com/app/spintracker/id000000000, a placeholder
-        Adam ID that 404s — so the one link here whose job is to turn a viewer
-        into an install dead-ended (SpinTracker-wrsl). The real Adam ID already
-        exists in App Store Connect, but apps.apple.com does not serve a page
-        for it until the app is released, so using it now would only swap one
-        404 for another.
-
-        Deliberately a relative "/" and not the App Store: on release day the
-        landing section below gains a real App Store badge and this link keeps
-        working, so it never has to change again. AppConfiguration.appStoreURL
-        in the app repo still carries the same placeholder and is still guarded
-        by StoryContentURLTests; that one is resolved when the app goes live.
+        Not an App Store link: the store serves no page for an unreleased app,
+        so linking there would 404. On release the landing section below gains
+        a real App Store badge and this link keeps working, so it does not
+        need to change.
       -->
       <footer class="cta">
         <a href="/">Tracked with SpinTracker</a>
