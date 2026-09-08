@@ -313,6 +313,23 @@ body.is-landing {
   color: var(--dim);
   margin: 12px 0 0;
 }
+#landing .get-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 22px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--endurance);
+  color: #04121b;
+  text-decoration: none;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 16px;
+}
+#landing .get-badge:hover { background: #4cc4ff; }
+
 #landing .get-links {
   margin-top: 28px;
   display: flex;
