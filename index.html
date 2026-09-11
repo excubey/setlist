@@ -138,7 +138,15 @@
       <footer class="get">
         <p class="get-status">Now on the App Store</p>
         <a class="get-badge" href="https://apps.apple.com/app/id6796364873">Download for iPhone</a>
-        <p class="get-note">iPhone · iOS 26.2 or later</p>
+        <!--
+          The floor is the app's IPHONEOS_DEPLOYMENT_TARGET, and the App Store
+          listing is the authority on what shipped. This read 26.2 from launch
+          until 1.1.1 lowered the target to 18.0 and nothing told this repo, so
+          the page claimed a requirement eight major versions above the truth -
+          harmless while there was no download button, and not harmless now.
+          The app repo cannot reach in here; check the listing when it moves.
+        -->
+        <p class="get-note">iPhone · iOS 18.0 or later</p>
         <nav class="get-links">
           <a href="https://excubey.github.io/spintracker-legal/support">Support</a>
           <a href="https://excubey.github.io/spintracker-legal/privacy-policy">Privacy</a>
