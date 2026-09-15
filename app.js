@@ -78,6 +78,79 @@ async function loadPayload() {
   return decodePayload(fragment);
 }
 
+/** The two services a class's own playlist may be linked on, and the label
+ *  each gets beneath the button. */
+const PLAYLIST_SERVICES = {
+  'music.apple.com': 'Apple Music',
+  'open.spotify.com': 'Spotify',
+};
+
+/** A payload value as a plain web link, or null.
+ *
+ *  The booking and playlist links are the only payload values this page turns
+ *  into an href, and a fragment is something anyone can type. So a value draws
+ *  nothing unless it parses as an absolute http or https URL with a host, and
+ *  one carrying a username or password is refused too: in
+ *  "https://cyclebar.com@evil.example" the part a reader sees is not where the
+ *  link goes. */
+function webURL(value) {
+  if (typeof value !== 'string') return null;
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+  if (!url.hostname || url.username || url.password) return null;
+  return url;
+}
+
+/** The class's playlist: only on Apple Music or Spotify, and only a playlist
+ *  page — "/playlist/<id>", optionally after a two-letter storefront such as
+ *  "/us/playlist/<id>". The same rule the app applies before it will store
+ *  one, so a link the app would refuse draws no button here either. */
+function playlistLink(value) {
+  const url = webURL(value);
+  if (!url) return null;
+  const service = PLAYLIST_SERVICES[url.hostname];
+  if (!service) return null;
+
+  const segments = url.pathname.toLowerCase().split('/').filter(Boolean);
+  const index = segments.indexOf('playlist');
+  if (index < 0 || index === segments.length - 1) return null;
+  if (index > 1 || (index === 1 && !/^[a-z]{2}$/.test(segments[0]))) return null;
+
+  return { href: url.href, detail: service };
+}
+
+/** Where to book. The page cannot tell an instructor's link from a studio's,
+ *  so the button says where it goes: the hostname, which for an international
+ *  domain is its punycode form rather than a lookalike. */
+function bookingLink(value) {
+  const url = webURL(value);
+  if (!url) return null;
+  return { href: url.href, detail: url.hostname.replace(/^www\./, '') };
+}
+
+function renderAction(link, label) {
+  const action = document.createElement('a');
+  action.className = 'action';
+  action.href = link.href;
+  action.target = '_blank';
+  action.rel = 'noopener';
+
+  const title = document.createElement('span');
+  title.className = 'action-label';
+  title.textContent = label;
+  const detail = document.createElement('span');
+  detail.className = 'action-detail';
+  detail.textContent = link.detail;
+
+  action.append(title, detail);
+  return action;
+}
+
 function renderTrack(track) {
   const item = document.createElement('li');
   item.className = 'track';
@@ -123,9 +196,19 @@ function render(payload) {
   // textContent everywhere, never innerHTML: this data came out of a URL.
   document.getElementById('instructor').textContent = payload.i || 'A ride';
 
-  const venue = [payload.s, payload.d].filter(Boolean).join(' · ');
+  // The class's name leads when the ride has one: "Throwback Ride · CycleBar ·
+  // 2026-09-04". Links from older versions carry no name and read as before.
+  const venue = [payload.c, payload.s, payload.d].filter(Boolean).join(' · ');
   const handles = [payload.ih, payload.sh].filter(Boolean).map((h) => '@' + h).join(' ');
   document.getElementById('venue').textContent = [venue, handles].filter(Boolean).join(' — ');
+
+  // Each button draws only when its link is present AND passes its check.
+  const actions = document.getElementById('actions');
+  const play = playlistLink(payload.p);
+  if (play) actions.append(renderAction(play, 'Play the playlist'));
+  const book = bookingLink(payload.b);
+  if (book) actions.append(renderAction(book, 'Book a class'));
+  actions.hidden = actions.childElementCount === 0;
 
   const list = document.getElementById('tracks');
   payload.t.forEach((track) => list.append(renderTrack(track)));
@@ -165,8 +248,8 @@ window.addEventListener('hashchange', () => window.location.reload());
 loadPayload().then(render).catch((error) => {
   // Fallback is visible by default, so a DAMAGED payload needs no action
   // beyond not showing the app. A blank screen would be indistinguishable
-  // from the site being down (cf. SpinTracker-4qh) — which is also why the
-  // landing is opt-in here rather than the default: if this script never
-  // runs at all, a visitor still sees something that explains itself.
+  // from the site being down — which is also why the landing is opt-in here
+  // rather than the default: if this script never runs at all, a visitor
+  // still sees something that explains itself.
   if (error instanceof NoPayload) showLanding();
 });

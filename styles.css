@@ -12,6 +12,17 @@ body {
 .eyebrow { margin: 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; overflow-wrap: anywhere; }
 .bill p:last-child { margin: 0 0 28px; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: -12px 0 28px; }
+/* The rule above sets display, which outranks the hidden attribute's own. */
+.actions[hidden] { display: none; }
+.action {
+  display: flex; flex-direction: column; justify-content: center; flex: 1 1 200px;
+  min-height: 56px; padding: 9px 16px;
+  border: 1px solid var(--line); border-radius: 14px;
+  text-decoration: none; color: var(--fg);
+}
+.action-label { font-weight: 600; font-size: 15px; }
+.action-detail { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
 .tracks { list-style: none; margin: 0; padding: 0; counter-reset: track; }
 .track {
   display: flex; align-items: center; gap: 12px;
