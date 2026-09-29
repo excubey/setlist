@@ -7,8 +7,13 @@ const dbPath = process.env.DB_PATH ?? '/data/links.db';
 const staticRoot = process.env.STATIC_ROOT ?? '/site';
 
 const store = openStore(dbPath, Date.now);
-setInterval(() => store.sweep(), 3600e3).unref();
+const handler = createHandler({ store, staticRoot, now: Date.now });
+// Hourly: expire stored links, and let the rate limiter forget idle uploader IPs.
+setInterval(() => {
+  store.sweep();
+  handler.sweepLimiter();
+}, 3600e3).unref();
 store.sweep();
 
 // No request logger on purpose: nothing records which setlist was uploaded or viewed.
-http.createServer(createHandler({ store, staticRoot, now: Date.now })).listen(port);
+http.createServer(handler).listen(port);

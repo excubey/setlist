@@ -56,6 +56,15 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
     return false;
   }
 
+  // Drops every IP whose newest upload is over an hour old, so the limiter
+  // holds no address longer than that after its last upload.
+  function sweepLimiter() {
+    const cutoff = now() - HOUR;
+    for (const [ip, times] of uploads) {
+      if (!times.length || times[times.length - 1] <= cutoff) uploads.delete(ip);
+    }
+  }
+
   function readBody(req, cb) {
     const chunks = [];
     let size = 0;
@@ -114,7 +123,7 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
     send(res, 200, file, { 'content-type': type, 'cache-control': PUBLIC_5M });
   }
 
-  return (req, res) => {
+  const handler = (req, res) => {
     let pathname;
     try {
       pathname = decodeURIComponent(new URL(req.url, 'http://x').pathname);
@@ -122,7 +131,13 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
       return plain(res, 404);
     }
     if (pathname.includes('..') || pathname.includes('\0') || pathname.includes('\\')) return plain(res, 404);
-    const method = req.method;
+    const head = req.method === 'HEAD';
+    if (head) {
+      // Answer HEAD as GET, minus the body.
+      const end = res.end.bind(res);
+      res.end = () => end();
+    }
+    const method = head ? 'GET' : req.method;
 
     if (pathname === '/healthz') return method === 'GET' ? plain(res, 200, 'ok') : plain(res, 404);
 
@@ -171,4 +186,8 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
     }
     return plain(res, 404);
   };
+  handler.sweepLimiter = sweepLimiter;
+  // For tests: how many IPs the limiter is holding.
+  handler.limiterEntryCount = () => uploads.size;
+  return handler;
 }

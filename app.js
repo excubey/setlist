@@ -219,7 +219,20 @@ function renderTrack(track) {
   return item;
 }
 
+const REPORT_ADDRESS = 'zbproductions22@gmail.com';
+
+/** A mailto: for reporting this page. A short link names its code in the
+ *  subject so the operator can find it; a long link's payload can be huge, so
+ *  its subject stays generic. */
+function reportHref() {
+  const short = window.location.pathname.match(/^\/r\/([a-z0-9]{7})$/);
+  const subject = short ? 'Report setlist ' + short[1] : 'Report shared setlist';
+  const body = "What's wrong with this setlist?\n\n";
+  return 'mailto:' + REPORT_ADDRESS + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
 function render(payload) {
+  document.getElementById('report').href = reportHref();
   // textContent everywhere, never innerHTML: this data came out of a URL.
   document.getElementById('instructor').textContent = payload.i || 'A ride';
 

@@ -61,6 +61,18 @@ export function openStore(path, now) {
       insertGone.run(code, row.expires_at);
       return true;
     },
+    // Operator-only: removes a live code without its delete token. The HTTP
+    // DELETE path never calls this; it goes through revoke().
+    remove(code) {
+      const row = selectLink.get(code);
+      if (!row || row.expires_at < now()) return false;
+      deleteLink.run(code);
+      insertGone.run(code, row.expires_at);
+      return true;
+    },
+    close() {
+      db.close();
+    },
     sweep() {
       const n = now();
       sweepLinks.run(n);

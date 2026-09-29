@@ -46,6 +46,21 @@ Links live in a SQLite file, `/data/links.db`, in the Docker volume
 convenience that expires, and the setlist itself is always in the rider's app.
 Losing the volume loses only the short codes.
 
+## Removing a reported setlist
+
+The page's "Report this setlist" link emails the support address with the
+short code in the subject (`Report setlist <code>`). To take it down, without
+its delete token:
+
+```sh
+ssh sleepy 'docker exec spintracker-web node /app/remove.js <code>'
+```
+
+It prints `removed <code>` (exit 0) or `no such code <code>` (exit 1). This
+cannot be undone, and the link then shows "expired" until its original expiry.
+A report about a long `/#` link has no code and nothing stored on the server;
+there is nothing to remove.
+
 ## Before redesigning the site
 
 The landing page and the shared-setlist page are the same `index.html` and

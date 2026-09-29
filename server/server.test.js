@@ -222,3 +222,42 @@ test('payload inflating to just under 1 MiB is 201', async () => {
   assert.ok(p.length < 16 * 1024);
   assert.equal((await upload(p)).status, 201);
 });
+
+test('rate limiter forgets an IP after an hour', async () => {
+  const handler = createHandler({ store, staticRoot: root, now: () => t });
+  const s2 = http.createServer(handler);
+  await new Promise((r) => s2.listen(0, '127.0.0.1', r));
+  const o2 = `http://127.0.0.1:${s2.address().port}`;
+  try {
+    const res = await fetch(`${o2}/api/r`, { method: 'POST', body: enc(base), headers: { 'CF-Connecting-IP': '9.9.9.9' } });
+    assert.equal(res.status, 201);
+    assert.equal(handler.limiterEntryCount(), 1);
+    t += 3600e3 - 1;
+    handler.sweepLimiter();
+    assert.equal(handler.limiterEntryCount(), 1);
+    t += 2;
+    handler.sweepLimiter();
+    assert.equal(handler.limiterEntryCount(), 0);
+  } finally {
+    s2.closeAllConnections();
+    await new Promise((r) => s2.close(r));
+  }
+});
+
+test('store.remove tombstones a live code and refuses an unknown one', () => {
+  const { code } = store.put(enc(base));
+  assert.equal(store.remove(code), true);
+  assert.equal(store.get(code).status, 'gone');
+  assert.equal(store.remove('zzzzzzz'), false);
+  assert.equal(store.get('zzzzzzz').status, 'missing');
+});
+
+test('HEAD / is 200 with no body', async () => {
+  for (const p of ['/', '/healthz', '/app.js']) {
+    const res = await fetch(`${origin}${p}`, { method: 'HEAD' });
+    assert.equal(res.status, 200, p);
+    assert.equal(await res.text(), '', p);
+  }
+  const u = await uploadOK(base);
+  assert.equal((await fetch(`${origin}/r/${u.code}`, { method: 'HEAD' })).status, 200);
+});

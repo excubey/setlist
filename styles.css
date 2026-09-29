@@ -45,6 +45,8 @@ h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; overflow-wrap: anywh
 .metrics { margin-top: 24px; color: var(--muted); font-size: 14px; }
 .cta { margin-top: 36px; text-align: center; font-size: 14px; }
 .cta a { display: inline-flex; align-items: center; gap: 8px; color: var(--fg); }
+.report { margin: 20px 0 0; text-align: center; font-size: 12px; }
+.report a { color: var(--muted); }
 .cta-icon { width: 20px; height: 20px; border-radius: 22.5%; flex-shrink: 0; }
 
 /* The setlist's top bar reuses the landing's markup (.topbar, .wordmark,
