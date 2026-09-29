@@ -44,9 +44,29 @@ h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; overflow-wrap: anywh
 }
 .metrics { margin-top: 24px; color: var(--muted); font-size: 14px; }
 .cta { margin-top: 36px; text-align: center; font-size: 14px; }
+.cta a { display: inline-flex; align-items: center; gap: 8px; color: var(--fg); }
+.report { margin: 20px 0 0; text-align: center; font-size: 12px; }
+.report a { color: var(--muted); }
+.cta-icon { width: 20px; height: 20px; border-radius: 22.5%; flex-shrink: 0; }
+
+/* The setlist's top bar reuses the landing's markup (.topbar, .wordmark,
+   .topbar-get) with the setlist's own light/dark tokens. */
+#app .topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 24px;
+}
+#app .brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; color: var(--fg); text-decoration: none; }
+#app .brand-icon { width: 30px; height: 30px; border-radius: 22.5%; flex-shrink: 0; }
+#app .wordmark { font-weight: 700; font-size: 19px; letter-spacing: -.01em; white-space: nowrap; }
+#app .topbar-get {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px;
+  border: 1px solid var(--line); border-radius: 999px;
+  color: var(--fg); text-decoration: none; font-size: 14px; white-space: nowrap;
+}
 .fallback { text-align: center; padding-top: 56px; }
 .fallback h1 { font-size: 22px; }
 .fallback p { color: var(--muted); }
+.fallback a { color: var(--fg); }
 
 /* ==========================================================================
    Landing — shown at the bare domain, when there is no payload to render.
@@ -139,6 +159,19 @@ body.is-landing {
   margin: 0;
   max-width: 17ch;
 }
+
+/* Shown above the pitch when a short link has expired: same scale as the lede,
+   so it reads as the first line of the page rather than an error banner. */
+#landing .expired-note {
+  font-size: clamp(17px, 2.1vw, 20px);
+  line-height: 1.5;
+  color: var(--text);
+  margin: 40px 0 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--threshold);
+  max-width: 46ch;
+}
+#landing .expired-note + .hero { padding-top: 40px; }
 
 #landing .lede {
   font-size: clamp(17px, 2.1vw, 20px);
