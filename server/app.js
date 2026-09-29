@@ -4,6 +4,9 @@ import { inflateRawSync } from 'node:zlib';
 import { previewHead } from './preview.js';
 
 const MAX_BODY = 16 * 1024;
+// Largest decoded payload accepted. Mirrors the app's own decode limit, so
+// nothing the app can encode is refused, and bounds the work of each page view.
+const MAX_DECODED_BYTES = 1 << 20;
 const HOUR = 3600e3;
 const ORIGIN = 'https://spintracker.buoyantpass.com';
 const AASA = '.well-known/apple-app-site-association';
@@ -24,7 +27,7 @@ const PUBLIC_5M = 'public, max-age=300';
 function decode(payload) {
   if (!/^[A-Za-z0-9_-]+$/.test(payload)) return null;
   try {
-    const obj = JSON.parse(inflateRawSync(Buffer.from(payload, 'base64url')).toString('utf8'));
+    const obj = JSON.parse(inflateRawSync(Buffer.from(payload, 'base64url'), { maxOutputLength: MAX_DECODED_BYTES }).toString('utf8'));
     return obj && obj.v === 1 && Array.isArray(obj.t) ? obj : null;
   } catch {
     return null;

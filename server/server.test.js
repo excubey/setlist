@@ -197,3 +197,18 @@ test('no path escapes the site', async () => {
     assert.equal(await raw(p), 404, p);
   }
 });
+
+test('payload inflating past 1 MiB is 400', async () => {
+  const p = enc({ v: 1, t: [], x: 'a'.repeat(1_100_000) });
+  assert.ok(p.length < 16 * 1024);
+  assert.equal((await upload(p)).status, 400);
+});
+
+test('payload inflating to just under 1 MiB is 201', async () => {
+  const pad = 'a'.repeat((1 << 20) - JSON.stringify({ v: 1, t: [], x: '' }).length);
+  const obj = { v: 1, t: [], x: pad };
+  assert.equal(JSON.stringify(obj).length, 1 << 20);
+  const p = enc(obj);
+  assert.ok(p.length < 16 * 1024);
+  assert.equal((await upload(p)).status, 201);
+});
