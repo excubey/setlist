@@ -8,11 +8,11 @@ const staticRoot = process.env.STATIC_ROOT ?? '/site';
 
 const store = openStore(dbPath, Date.now);
 const handler = createHandler({ store, staticRoot, now: Date.now });
-// Hourly: expire stored links, and let the rate limiter forget idle uploader IPs.
-setInterval(() => {
-  store.sweep();
-  handler.sweepLimiter();
-}, 3600e3).unref();
+// Hourly: expire stored links.
+setInterval(() => store.sweep(), 3600e3).unref();
+// Every 10 minutes: let the rate limiter forget uploader IPs idle for over an
+// hour, so none is held much past 70 minutes after its last upload.
+setInterval(() => handler.sweepLimiter(), 600e3).unref();
 store.sweep();
 
 // No request logger on purpose: nothing records which setlist was uploaded or viewed.
