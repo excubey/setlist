@@ -75,6 +75,12 @@ class NoPayload extends Error {}
 async function loadPayload() {
   const fragment = window.location.hash.slice(1);
   if (!fragment) throw new NoPayload('no payload');
+  // An anchor on the landing page itself (#get, the download footer) is a
+  // place to scroll to, not a payload. Decoding it failed and showed a
+  // visitor looking for the download "This link is incomplete".
+  if (document.querySelector('#landing [id="' + CSS.escape(fragment) + '"]')) {
+    throw new NoPayload('landing anchor');
+  }
   return decodePayload(fragment);
 }
 
@@ -235,6 +241,10 @@ function showLanding() {
   document.body.classList.add('is-landing');
   document.getElementById('fallback').hidden = true;
   document.getElementById('landing').hidden = false;
+  // The landing was hidden when the browser tried to honour the fragment, so
+  // it scrolled nowhere; do it now that the target is on screen.
+  const anchor = window.location.hash.slice(1);
+  if (anchor) document.getElementById(anchor)?.scrollIntoView();
 }
 
 // The setlist's own CTA points at "/", which differs from "/#payload" only by

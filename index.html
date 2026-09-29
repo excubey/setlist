@@ -38,12 +38,18 @@
       <!--
         The name and the platform used to sit in a small caps kicker above the
         headline. They live here now, and the link names the platform because
-        nothing else above the fold does. It jumps to the footer rather than
-        repeating the store URL, so the link keeps its one home.
+        nothing else above the fold does.
+
+        It goes straight to the store. It used to jump to the footer (#get) so
+        the store URL had one home, but every fragment on this page is read as
+        a setlist payload: "get" failed to decode and the visitor who asked to
+        download the app was told "This link is incomplete". app.js now lets a
+        landing anchor through, but a download button should not depend on it.
+        The store URL now lives here and in the footer; change both.
       -->
       <nav class="topbar" aria-label="SpinTracker">
         <span class="wordmark">SpinTracker</span>
-        <a class="topbar-get" href="#get">Get it for iPhone</a>
+        <a class="topbar-get" href="https://apps.apple.com/app/id6796364873">Get it for iPhone</a>
       </nav>
 
       <header class="hero">
