@@ -44,7 +44,8 @@ test('upload returns a 7-char code and a token', async () => {
   const j = await res.json();
   assert.match(j.code, /^[a-z0-9]{7}$/);
   assert.match(j.deleteToken, /^[A-Za-z0-9_-]{43}$/);
-  assert.equal(j.expiresAt, t + 30 * DAY);
+  assert.equal(j.expiresAt, Math.floor((t + 30 * DAY) / 3600e3) * 3600e3);
+  assert.ok(j.expiresAt <= t + 30 * DAY && j.expiresAt > t + 30 * DAY - 3600e3);
 });
 
 test('fetch returns the exact payload', async () => {

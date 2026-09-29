@@ -1,7 +1,8 @@
 // Decoding and link building for shared setlists.
 //
-// The payload arrives in the URL fragment, which the browser never sends to
-// the server — so this page's host receives nothing. Nothing is stored.
+// A long link carries its payload in the URL fragment, which the browser never
+// sends to the server, so the host receives nothing for those. A /r/<code>
+// page instead fetches a setlist the server stores for up to 30 days.
 
 /** RFC 3986 unreserved only, matching Swift's StreamingSearchLink exactly.
  *  encodeURIComponent leaves !'()* alone; Swift does not, so finish the job. */

@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { randomBytes, randomInt, createHash } from 'node:crypto';
 
 const THIRTY_DAYS = 30 * 864e5;
+const HOUR = 3600e3;
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 export const hashToken = (token) => createHash('sha256').update(token).digest('hex');
@@ -12,8 +13,12 @@ function newCode() {
   return code;
 }
 
-export function openStore(path, now) {
+export function openStore(path, now, { busyTimeoutMs = 0 } = {}) {
   const db = new DatabaseSync(path);
+  // PRAGMA rather than the constructor's timeout option: it works on every Node the store supports.
+  if (busyTimeoutMs) db.exec(`PRAGMA busy_timeout = ${Number(busyTimeoutMs)}`);
+  // Zero deleted payloads instead of leaving them in free pages.
+  db.exec('PRAGMA secure_delete = ON');
   db.exec(`
     CREATE TABLE IF NOT EXISTS links(
       code TEXT PRIMARY KEY, payload TEXT NOT NULL,
@@ -32,7 +37,8 @@ export function openStore(path, now) {
   return {
     put(payload) {
       const deleteToken = randomBytes(32).toString('base64url');
-      const expiresAt = now() + THIRTY_DAYS;
+      // Floored to the hour so an expiry cannot be joined to an upload time to the millisecond.
+      const expiresAt = Math.floor((now() + THIRTY_DAYS) / HOUR) * HOUR;
       for (;;) {
         const code = newCode();
         if (selectLink.get(code) || selectGone.get(code)) continue;

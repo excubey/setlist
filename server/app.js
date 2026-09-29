@@ -172,8 +172,8 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
     if (m) {
       const r = store.get(m[1]);
       const payload = r.status === 'ok' ? decode(r.payload) : null;
-      const head = payload ? previewHead(payload, `${ORIGIN}/r/${m[1]}`) : '';
-      return indexPage(res, { preview: head, cache: 'no-store' });
+      const preview = payload ? previewHead(payload, `${ORIGIN}/r/${m[1]}`) : '';
+      return indexPage(res, { preview, cache: 'no-store' });
     }
 
     if (pathname === '/app.js' || pathname === '/styles.css') {
