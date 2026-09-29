@@ -16,17 +16,27 @@ static files and the short-link API (`/api/r`, `/r/<code>`, link previews,
 
 ## Redeploy
 
-From the Mac:
+Prerequisite: the external Docker network `rts_default` must already exist on
+sleepy. It is the network the `rts-cloudflared` tunnel container is on.
+
+One-time setup of the target directory:
 
 ```sh
-rsync -a --delete --exclude .git ~/Desktop/setlist/ sleepy:/opt/spintracker-web/
+ssh sleepy 'sudo mkdir -p /opt/spintracker-web && sudo chown "$USER" /opt/spintracker-web'
+```
+
+Then, from the Mac. The rsync source must be a checkout of this repo (the path
+below is one example checkout):
+
+```sh
+rsync -a --delete --exclude .git --exclude .DS_Store ~/Desktop/setlist/ sleepy:/opt/spintracker-web/
 ssh sleepy 'cd /opt/spintracker-web/server && docker compose up -d --build'
 ```
 
 ## Check it
 
 - `docker ps` on sleepy: `spintracker-web` should be `Up ... (healthy)`.
-- `https://<the site>/healthz` answers `ok`.
+- `https://spintracker.buoyantpass.com/healthz` answers `ok`.
 - The Uptime Kuma monitor watches the same endpoint.
 
 ## Data
@@ -41,3 +51,5 @@ Losing the volume loses only the short codes.
 ```sh
 cd server && node --test
 ```
+
+This needs Node 24 or newer (`node:sqlite`).

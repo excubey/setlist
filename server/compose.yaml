@@ -1,5 +1,8 @@
+name: spintracker-web
+
 services:
   spintracker-web:
+    container_name: spintracker-web
     build:
       context: ..
       dockerfile: server/Dockerfile
@@ -17,6 +20,7 @@ services:
 
 volumes:
   spintracker-links:
+    name: spintracker-links
 
 networks:
   rts_default:
