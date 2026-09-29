@@ -1,0 +1,23 @@
+services:
+  spintracker-web:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    read_only: true
+    restart: unless-stopped
+    volumes:
+      - spintracker-links:/data
+    networks:
+      - rts_default
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  spintracker-links:
+
+networks:
+  rts_default:
+    external: true

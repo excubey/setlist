@@ -1,0 +1,4 @@
+.git
+fixtures
+.DS_Store
+server/*.test.js
