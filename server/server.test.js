@@ -140,6 +140,16 @@ test('short page carries the preview', async () => {
   assert.ok(body.includes('og:title" content="Rhythm Ride"'));
   assert.ok(body.includes('og:description" content="3 tracks · Maya · Ride Studio · 2026-09-29"'));
   assert.equal(res.headers.get('cache-control'), 'no-store');
+  assert.ok(body.includes(`og:image" content="https://spintracker.buoyantpass.com/assets/icon-512.png"`));
+  assert.ok(body.includes(`twitter:image" content="https://spintracker.buoyantpass.com/assets/icon-512.png"`));
+  assert.ok(body.includes('twitter:card" content="summary"'));
+});
+
+test('the preview icon is served as a cacheable png', async () => {
+  const res = await fetch(`${origin}/assets/icon-512.png`);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'image/png');
+  assert.equal(res.headers.get('cache-control'), 'public, max-age=300');
 });
 
 test('preview falls back without a class name', async () => {

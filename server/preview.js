@@ -22,6 +22,7 @@ export function previewHead(payload, pageURL) {
     text(payload.d),
   ].filter(Boolean);
   const description = parts.join(' · ');
+  const image = `${new URL(pageURL).origin}/assets/icon-512.png`;
   return [
     `<title>${esc(title)}</title>`,
     `<meta name="description" content="${esc(description)}">`,
@@ -29,6 +30,8 @@ export function previewHead(payload, pageURL) {
     `<meta property="og:description" content="${esc(description)}">`,
     `<meta property="og:url" content="${esc(pageURL)}">`,
     `<meta property="og:type" content="website">`,
+    `<meta property="og:image" content="${esc(image)}">`,
     `<meta name="twitter:card" content="summary">`,
+    `<meta name="twitter:image" content="${esc(image)}">`,
   ].join('\n    ');
 }

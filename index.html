@@ -7,6 +7,8 @@
     <title>SpinTracker — every ride is a playlist</title>
     <meta name="description" content="SpinTracker listens while you ride, names the songs playing around you, and ties each one to the effort you actually put in.">
     <!--preview:end-->
+    <link rel="icon" type="image/png" href="/assets/icon-180.png">
+    <link rel="apple-touch-icon" href="/assets/icon-180.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -14,6 +16,13 @@
   </head>
   <body>
     <main id="app" hidden>
+      <nav class="topbar" aria-label="SpinTracker">
+        <a class="brand" href="/">
+          <img class="brand-icon" src="/assets/icon-180.png" alt="" width="30" height="30">
+          <span class="wordmark">SpinTracker</span>
+        </a>
+        <a class="topbar-get" href="https://apps.apple.com/app/id6796364873">Get it for iPhone</a>
+      </nav>
       <header class="bill">
         <p class="eyebrow">Setlist</p>
         <h1 id="instructor"></h1>
@@ -26,13 +35,13 @@
         Points at this page's own root, which renders the landing pitch when
         the fragment carries no payload.
 
-        Deliberately still not a direct App Store link, now that there is one
-        to give. A visitor arriving from someone else's ride has no idea what
-        this app is, so the landing page explains that first and carries the
-        download link itself — which also keeps the store URL in one place.
+        Deliberately still not a direct App Store link in the footer. A visitor
+        arriving from someone else's ride has no idea what this app is, so the
+        landing page explains that first. (The top bar above does carry a
+        direct "Get it for iPhone" button, for the visitor who already knows.)
       -->
       <footer class="cta">
-        <a href="/">Tracked with SpinTracker</a>
+        <a href="/"><img class="cta-icon" src="/assets/icon-180.png" alt="" width="20" height="20">Tracked with SpinTracker — see what it does</a>
       </footer>
     </main>
 
