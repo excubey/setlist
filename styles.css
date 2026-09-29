@@ -47,6 +47,7 @@ h1 { margin: 4px 0 6px; font-size: 30px; line-height: 1.15; overflow-wrap: anywh
 .fallback { text-align: center; padding-top: 56px; }
 .fallback h1 { font-size: 22px; }
 .fallback p { color: var(--muted); }
+.fallback a { color: var(--fg); }
 
 /* ==========================================================================
    Landing — shown at the bare domain, when there is no payload to render.
@@ -139,6 +140,19 @@ body.is-landing {
   margin: 0;
   max-width: 17ch;
 }
+
+/* Shown above the pitch when a short link has expired: same scale as the lede,
+   so it reads as the first line of the page rather than an error banner. */
+#landing .expired-note {
+  font-size: clamp(17px, 2.1vw, 20px);
+  line-height: 1.5;
+  color: var(--text);
+  margin: 40px 0 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--threshold);
+  max-width: 46ch;
+}
+#landing .expired-note + .hero { padding-top: 40px; }
 
 #landing .lede {
   font-size: clamp(17px, 2.1vw, 20px);

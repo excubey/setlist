@@ -70,9 +70,30 @@ function spotifySearchURL(track) {
  *  incomplete", which made the front door of the site an error message. */
 class NoPayload extends Error {}
 
-/** Separated from render() on purpose: a future backend adds a second loader
- *  reading /r/<id> and nothing else about this page changes. */
+/** A short link whose setlist is gone: past its 30 days, revoked, or never
+ *  issued. The server answers all three the same way, so the page does too. */
+class Expired extends Error {}
+
+/** A short link that could not be read right now: the server errored or the
+ *  network is down. Unlike Expired, trying again can work. */
+class Unavailable extends Error {}
+
+/** Separated from render() on purpose: each source of a payload is its own
+ *  branch here and nothing else about this page changes. */
 async function loadPayload() {
+  const short = window.location.pathname.match(/^\/r\/([a-z0-9]{7})$/);
+  if (short) {
+    let res;
+    try {
+      res = await fetch('/api/r/' + short[1]);
+    } catch {
+      throw new Unavailable('network error');
+    }
+    if (res.status === 410 || res.status === 404) throw new Expired('gone');
+    if (!res.ok) throw new Unavailable('status ' + res.status);
+    return decodePayload(await res.text());
+  }
+
   const fragment = window.location.hash.slice(1);
   if (!fragment) throw new NoPayload('no payload');
   // An anchor on the landing page itself (#get, the download footer) is a
@@ -262,4 +283,12 @@ loadPayload().then(render).catch((error) => {
   // rather than the default: if this script never runs at all, a visitor
   // still sees something that explains itself.
   if (error instanceof NoPayload) showLanding();
+  else if (error instanceof Expired) {
+    showLanding();
+    document.getElementById('expired-note').hidden = false;
+  } else if (error instanceof Unavailable) {
+    document.getElementById('fallback').hidden = true;
+    document.getElementById('unavailable').hidden = false;
+    document.getElementById('retry').href = window.location.href;
+  }
 });
