@@ -46,6 +46,29 @@ Links live in a SQLite file, `/data/links.db`, in the Docker volume
 convenience that expires, and the setlist itself is always in the rider's app.
 Losing the volume loses only the short codes.
 
+## Before redesigning the site
+
+The landing page and the shared-setlist page are the same `index.html` and
+`app.js`. A redesign is fine, but these have to keep working:
+
+1. **Long links at the root.** Every `https://spintracker.buoyantpass.com/#<payload>`
+   shared since app 1.0 loads `/` and is decoded in JavaScript from the
+   fragment. The root page has to keep running the setlist renderer, and must
+   not redirect elsewhere: the server never sees a fragment, so it cannot
+   forward one.
+2. **`/r/<code>` keeps serving the setlist page**, and `index.html`'s `<head>`
+   keeps the `<!--preview:start-->` and `<!--preview:end-->` markers. The server
+   writes the link-preview tags between them.
+3. **`/.well-known/apple-app-site-association`** is served byte-for-byte as
+   `application/json`. If it breaks, shared links stop opening the app.
+4. **Asset and link paths are root-absolute** (`/assets/...`, `/app.js`).
+   Relative ones break when the page is served under `/r/`.
+5. **`/#get` still reaches the download section**, if you keep that section.
+
+Moving the marketing content to another site is fine, but
+`spintracker.buoyantpass.com/` must still render setlists for links that carry
+one.
+
 ## Tests
 
 ```sh
