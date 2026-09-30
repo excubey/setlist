@@ -310,3 +310,30 @@ loadPayload().then(render).catch((error) => {
     document.getElementById('retry').href = window.location.href;
   }
 });
+
+// SpinTracker is iPhone-only, and on a Mac Safari hands the App Store link to
+// the Mac App Store, which shows an error. iPadOS reports itself as a Mac, so
+// it is told apart by touch. Everywhere but iOS/iPadOS the three App Store
+// buttons open a QR code instead; the hrefs stay real for no-JS and "copy link".
+(function getDialog() {
+  const ua = navigator.userAgent;
+  const onIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const dialog = document.getElementById('get-dialog');
+  if (onIOS || !dialog || typeof dialog.showModal !== 'function') return;
+  let opener = null;
+  const close = () => dialog.close();
+  document.querySelectorAll('.topbar-get, .get-badge').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      opener = button;
+      dialog.showModal();
+      dialog.querySelector('.get-dialog-close').focus();
+    });
+  });
+  dialog.querySelector('.get-dialog-close').addEventListener('click', close);
+  // A click on the backdrop lands on the dialog element itself.
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) close();
+  });
+  dialog.addEventListener('close', () => opener?.focus());
+})();

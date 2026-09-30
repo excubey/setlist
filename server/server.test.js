@@ -153,6 +153,12 @@ test('the preview icon is served as a cacheable png', async () => {
   assert.equal(res.headers.get('cache-control'), 'public, max-age=300');
 });
 
+test('assets serve svg as image/svg+xml', async () => {
+  const res = await fetch(`${origin}/assets/app-store-qr.svg`);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'image/svg+xml');
+});
+
 test('preview falls back without a class name', async () => {
   const u = await uploadOK(base);
   const body = await (await fetch(`${origin}/r/${u.code}`)).text();
