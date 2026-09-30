@@ -194,6 +194,15 @@
       <h1>Couldn't load this setlist. Try again in a moment.</h1>
       <p><a id="retry" href="/">Try again</a></p>
     </main>
+    <!-- QR for the App Store page, generated once and committed. Regenerate with:
+         npx --yes qrcode -t svg -e M -q 4 -d 000000 -l ffffff -o assets/app-store-qr.svg "https://apps.apple.com/app/id6796364873" -->
+    <dialog id="get-dialog" aria-labelledby="get-dialog-text">
+      <img class="get-qr" src="/assets/app-store-qr.svg" alt="QR code that opens SpinTracker on the App Store" width="200" height="200">
+      <p id="get-dialog-text">SpinTracker is for iPhone &mdash; scan this with your iPhone's camera.</p>
+      <a class="get-dialog-link" href="https://apps.apple.com/us/app/spintracker-ride-music/id6796364873?platform=iphone">See it on the App Store</a>
+      <button type="button" class="get-dialog-close">Close</button>
+    </dialog>
+
     <script src="/app.js"></script>
   </body>
 </html>
