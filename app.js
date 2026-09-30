@@ -235,11 +235,15 @@ function reportHref() {
 function render(payload) {
   document.getElementById('report').href = reportHref();
   // textContent everywhere, never innerHTML: this data came out of a URL.
-  document.getElementById('instructor').textContent = payload.i || 'A ride';
-
-  // The class's name leads when the ride has one: "Throwback Ride · CycleBar ·
-  // 2026-09-04". Links from older versions carry no name and read as before.
-  const venue = [payload.c, payload.s, payload.d].filter(Boolean).join(' · ');
+  // The element id 'instructor' is historical: it holds the page HEADLINE.
+  // The headline is the instructor when one is credited; otherwise the class
+  // name; otherwise "A ride". The subtitle lists the remaining parts, so the
+  // class name appears once: with an instructor it leads the subtitle
+  // ("Rhythm Ride · CycleBar · 2026-09-04"); without one it is the headline and
+  // is left out of the subtitle.
+  const headline = payload.i || payload.c || 'A ride';
+  document.getElementById('instructor').textContent = headline;
+  const venue = [payload.i ? payload.c : null, payload.s, payload.d].filter(Boolean).join(' · ');
   const handles = [payload.ih, payload.sh].filter(Boolean).map((h) => '@' + h).join(' ');
   document.getElementById('venue').textContent = [venue, handles].filter(Boolean).join(' — ');
 
