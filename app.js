@@ -337,3 +337,26 @@ loadPayload().then(render).catch((error) => {
   });
   dialog.addEventListener('close', () => opener?.focus());
 })();
+
+// The Ride Replay films play only while they are on screen, and never on their
+// own for a visitor who asked for reduced motion: they keep their poster, and a
+// tap shows the player's controls instead.
+(function films() {
+  const videos = document.querySelectorAll('#landing .film video');
+  if (!videos.length) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+    videos.forEach((video) => { video.controls = true; });
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(({ target, isIntersecting }) => {
+      if (isIntersecting) {
+        target.preload = 'auto';
+        target.play().catch(() => { target.controls = true; });
+      } else {
+        target.pause();
+      }
+    });
+  }, { threshold: 0.6 });
+  videos.forEach((video) => observer.observe(video));
+})();

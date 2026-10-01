@@ -19,6 +19,7 @@ const MIME = {
   '.svg': 'image/svg+xml',
   '.webp': 'image/webp',
   '.ico': 'image/x-icon',
+  '.mp4': 'video/mp4',
 };
 const PUBLIC_5M = 'public, max-age=300';
 
@@ -117,10 +118,36 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
     send(res, 200, body, { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache });
   }
 
-  function staticFile(res, rel, type) {
+  // Byte ranges, because Safari will not play a video from a server that
+  // cannot answer them: it asks for bytes=0-1 first and gives up on a 200.
+  // One range only, which is all a browser's media player asks for.
+  function staticFile(req, res, rel, type) {
     const file = readFile(rel);
     if (!file) return plain(res, 404);
-    send(res, 200, file, { 'content-type': type, 'cache-control': PUBLIC_5M });
+    const headers = { 'content-type': type, 'cache-control': PUBLIC_5M, 'accept-ranges': 'bytes' };
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '');
+    if (!range || (range[1] === '' && range[2] === '')) {
+      return send(res, 200, file, { ...headers, 'content-length': file.length });
+    }
+    const size = file.length;
+    let start;
+    let end;
+    if (range[1] === '') {
+      start = Math.max(size - Number(range[2]), 0);
+      end = size - 1;
+    } else {
+      start = Number(range[1]);
+      end = range[2] === '' ? size - 1 : Math.min(Number(range[2]), size - 1);
+    }
+    if (start >= size || start > end) {
+      return send(res, 416, '', { ...headers, 'content-range': `bytes */${size}` });
+    }
+    const body = file.subarray(start, end + 1);
+    send(res, 206, body, {
+      ...headers,
+      'content-range': `bytes ${start}-${end}/${size}`,
+      'content-length': body.length,
+    });
   }
 
   const handler = (req, res) => {
@@ -177,12 +204,12 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
     }
 
     if (pathname === '/app.js' || pathname === '/styles.css') {
-      return staticFile(res, pathname.slice(1), MIME[path.extname(pathname)]);
+      return staticFile(req, res, pathname.slice(1), MIME[path.extname(pathname)]);
     }
-    if (pathname === `/${AASA}`) return staticFile(res, AASA, 'application/json');
+    if (pathname === `/${AASA}`) return staticFile(req, res, AASA, 'application/json');
     m = pathname.match(/^\/assets\/([^/]+)$/);
     if (m && !m[1].startsWith('.') && MIME[path.extname(m[1]).toLowerCase()]) {
-      return staticFile(res, `assets/${m[1]}`, MIME[path.extname(m[1]).toLowerCase()]);
+      return staticFile(req, res, `assets/${m[1]}`, MIME[path.extname(m[1]).toLowerCase()]);
     }
     return plain(res, 404);
   };

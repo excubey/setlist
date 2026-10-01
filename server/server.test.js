@@ -268,3 +268,53 @@ test('HEAD / is 200 with no body', async () => {
   const u = await uploadOK(base);
   assert.equal((await fetch(`${origin}/r/${u.code}`, { method: 'HEAD' })).status, 200);
 });
+
+const film = '/assets/film-replay-metrics.mp4';
+const filmBytes = () => fs.readFileSync(path.join(root, film));
+
+test('video is served as video/mp4 with its length and range support', async () => {
+  const res = await fetch(`${origin}${film}`);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'video/mp4');
+  assert.equal(res.headers.get('accept-ranges'), 'bytes');
+  assert.equal(Number(res.headers.get('content-length')), filmBytes().length);
+  assert.deepEqual(Buffer.from(await res.arrayBuffer()), filmBytes());
+});
+
+test("Safari's first probe, bytes=0-1, gets a 206 with two bytes", async () => {
+  const res = await fetch(`${origin}${film}`, { headers: { range: 'bytes=0-1' } });
+  assert.equal(res.status, 206);
+  assert.equal(res.headers.get('content-range'), `bytes 0-1/${filmBytes().length}`);
+  assert.equal(res.headers.get('content-length'), '2');
+  assert.deepEqual(Buffer.from(await res.arrayBuffer()), filmBytes().subarray(0, 2));
+});
+
+test('an open-ended range runs to the end of the file', async () => {
+  const size = filmBytes().length;
+  const res = await fetch(`${origin}${film}`, { headers: { range: 'bytes=100-' } });
+  assert.equal(res.status, 206);
+  assert.equal(res.headers.get('content-range'), `bytes 100-${size - 1}/${size}`);
+  assert.deepEqual(Buffer.from(await res.arrayBuffer()), filmBytes().subarray(100));
+});
+
+test('a suffix range returns the last bytes', async () => {
+  const size = filmBytes().length;
+  const res = await fetch(`${origin}${film}`, { headers: { range: 'bytes=-10' } });
+  assert.equal(res.status, 206);
+  assert.equal(res.headers.get('content-range'), `bytes ${size - 10}-${size - 1}/${size}`);
+  assert.deepEqual(Buffer.from(await res.arrayBuffer()), filmBytes().subarray(size - 10));
+});
+
+test('a range past the end is 416', async () => {
+  const size = filmBytes().length;
+  const res = await fetch(`${origin}${film}`, { headers: { range: `bytes=${size}-` } });
+  assert.equal(res.status, 416);
+  assert.equal(res.headers.get('content-range'), `bytes */${size}`);
+});
+
+test('HEAD on a video answers with its length and no body', async () => {
+  const res = await fetch(`${origin}${film}`, { method: 'HEAD' });
+  assert.equal(res.status, 200);
+  assert.equal(Number(res.headers.get('content-length')), filmBytes().length);
+  assert.equal((await res.arrayBuffer()).byteLength, 0);
+});

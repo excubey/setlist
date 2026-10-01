@@ -339,15 +339,101 @@ body.is-landing {
   color: var(--dim);
 }
 
+/* --- Films: the Ride Replay, the page's one moving thing --------------------
+
+   A rail rather than a grid: six portrait films side by side would each be a
+   thumbnail at this width, and a film is worth seeing at the size of a phone.
+   Each plays only while it is on screen (app.js), and not at all for a visitor
+   who asked for reduced motion. */
+
+#landing .films { margin-top: 104px; }
+#landing .film-rail,
+#landing .shots {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 24px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 24px;
+  /* Bleeds to the edge of the window, so the next item visibly continues. */
+  margin-inline: -24px;
+  padding: 0 24px 16px;
+}
+#landing .film-rail { grid-auto-columns: minmax(240px, 300px); }
+#landing .film { margin: 0; scroll-snap-align: start; }
+#landing .film video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 9 / 16;
+  border-radius: 20px;
+  border: 1px solid var(--edge);
+  background: var(--surface);
+}
+#landing .film figcaption,
+#landing .walks figcaption {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--dim);
+}
+
+/* --- New in 1.2 --------------------------------------------------------- */
+
+#landing .new { margin-top: 104px; }
+#landing .new-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  column-gap: 40px;
+}
+#landing .new-list li {
+  padding: 22px 0 24px;
+  border-top: 1px solid var(--edge);
+}
+#landing .new-list h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -.01em;
+  margin: 0 0 8px;
+}
+#landing .new-list p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--dim);
+  max-width: 46ch;
+}
+
+/* --- Walkthroughs ------------------------------------------------------- */
+
+#landing .walks { margin-top: 104px; }
+#landing .walk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+  gap: 36px;
+}
+#landing .walks figure { margin: 0; }
+#landing .walks video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  border: 1px solid var(--edge);
+  background: var(--surface);
+}
+
 /* --- Screens ------------------------------------------------------------ */
 
 #landing .shots {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 36px;
+  grid-auto-columns: minmax(200px, 230px);
   margin-top: 104px;
 }
-#landing .shots figure { margin: 0; }
+#landing .shots figure { margin: 0; scroll-snap-align: start; }
 #landing .shots img {
   width: 100%;
   height: auto;
@@ -422,6 +508,9 @@ body.is-landing {
 #landing .get-links a:hover { border-color: var(--endurance); }
 
 #landing a:focus-visible,
+#landing video:focus-visible,
+#landing .film-rail:focus-visible,
+#landing .shots:focus-visible,
 #app a:focus-visible {
   outline: 2px solid var(--endurance, #10acfa);
   outline-offset: 3px;
@@ -453,7 +542,11 @@ body.is-landing {
     text-align: left;
     min-width: 0;
   }
-  #landing .what, #landing .shots, #landing .get { margin-top: 72px; }
+  #landing .what, #landing .shots, #landing .get,
+  #landing .films, #landing .new, #landing .walks { margin-top: 72px; }
+  #landing .film-rail, #landing .shots { margin-inline: -18px; padding-inline: 18px; scroll-padding-inline: 18px; }
+  #landing .film-rail { grid-auto-columns: 72vw; }
+  #landing .shots { grid-auto-columns: 60vw; }
 }
 
 /* "Get it for iPhone" on a computer: a QR code in a native dialog. One look for
