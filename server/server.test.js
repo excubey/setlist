@@ -269,6 +269,52 @@ test('HEAD / is 200 with no body', async () => {
   assert.equal((await fetch(`${origin}/r/${u.code}`, { method: 'HEAD' })).status, 200);
 });
 
+const DUET_CSP =
+  "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+
+test('duet page is served at /duet and /duet/', async () => {
+  for (const p of ['/duet', '/duet/']) {
+    const res = await fetch(`${origin}${p}`);
+    assert.equal(res.status, 200, p);
+    assert.match(res.headers.get('content-type'), /^text\/html/);
+    assert.match(await res.text(), /<title>A duet ride on SpinTracker<\/title>/);
+  }
+});
+
+test('duet page carries the CSP and no-referrer', async () => {
+  const res = await fetch(`${origin}/duet`);
+  assert.equal(res.headers.get('content-security-policy'), DUET_CSP);
+  assert.equal(res.headers.get('referrer-policy'), 'no-referrer');
+  assert.equal(res.headers.get('cache-control'), 'no-cache');
+});
+
+test('duet page and script read no payload', async () => {
+  const page = await (await fetch(`${origin}/duet`)).text();
+  const script = await (await fetch(`${origin}/duet.js`)).text();
+  for (const body of [page, script]) {
+    assert.ok(!body.includes('fetch('));
+    assert.ok(!body.includes('XMLHttpRequest'));
+    assert.ok(!body.includes('sendBeacon'));
+  }
+  assert.equal(page.match(/<script/g).length, 1);
+  assert.match(page, /<script src="\/duet\.js" defer><\/script>/);
+});
+
+test('duet script builds the custom-scheme link from the hash', async () => {
+  const res = await fetch(`${origin}/duet.js`);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-type'), /javascript/);
+  assert.ok((await res.text()).includes('spintracker://duet#'));
+});
+
+test('HEAD /duet is 200 with no body', async () => {
+  for (const p of ['/duet', '/duet/']) {
+    const res = await fetch(`${origin}${p}`, { method: 'HEAD' });
+    assert.equal(res.status, 200, p);
+    assert.equal(await res.text(), '', p);
+  }
+});
+
 const film = '/assets/film-replay-metrics.mp4';
 const filmBytes = () => fs.readFileSync(path.join(root, film));
 

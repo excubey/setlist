@@ -21,6 +21,11 @@ const MIME = {
   '.ico': 'image/x-icon',
   '.mp4': 'video/mp4',
 };
+const DUET_HEADERS = {
+  'content-security-policy':
+    "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  'referrer-policy': 'no-referrer',
+};
 const PUBLIC_5M = 'public, max-age=300';
 
 // base64url -> raw deflate -> JSON, the way the page decodes it. Returns the
@@ -101,8 +106,8 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
     }
   }
 
-  function indexPage(res, { preview, cache }) {
-    const file = readFile('index.html');
+  function indexPage(res, { preview, cache, name = 'index.html', extra = {} }) {
+    const file = readFile(name);
     if (!file) return plain(res, 404);
     let body = file;
     if (preview) {
@@ -115,7 +120,7 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
         );
       }
     }
-    send(res, 200, body, { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache });
+    send(res, 200, body, { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache, ...extra });
   }
 
   // Byte ranges, because Safari will not play a video from a server that
@@ -195,6 +200,14 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
 
     if (pathname === '/') return indexPage(res, { cache: 'no-cache' });
 
+    // The duet link's fragment is a sealed payload and must never leave the
+    // page. The CSP is what guarantees that even if the tunnel in front of this
+    // server injects an analytics script: it blocks any other script and every
+    // outbound connection.
+    if (pathname === '/duet' || pathname === '/duet/') {
+      return indexPage(res, { name: 'duet.html', cache: 'no-cache', extra: DUET_HEADERS });
+    }
+
     m = pathname.match(/^\/r\/([^/]+)$/);
     if (m) {
       const r = store.get(m[1]);
@@ -203,7 +216,7 @@ export function createHandler({ store, staticRoot, now, uploadsPerHour = 30 }) {
       return indexPage(res, { preview, cache: 'no-store' });
     }
 
-    if (pathname === '/app.js' || pathname === '/styles.css') {
+    if (pathname === '/app.js' || pathname === '/duet.js' || pathname === '/styles.css') {
       return staticFile(req, res, pathname.slice(1), MIME[path.extname(pathname)]);
     }
     if (pathname === `/${AASA}`) return staticFile(req, res, AASA, 'application/json');

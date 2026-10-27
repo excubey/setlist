@@ -575,3 +575,13 @@ body.is-landing {
   cursor: pointer;
 }
 #get-dialog .get-dialog-close:hover { border-color: #10acfa; }
+
+/* /duet: the page a phone without the app sees. No inline styles there, the
+   page's CSP forbids them. */
+.duet { margin-top: 20vh; text-align: center; }
+.duet a { color: var(--fg); }
+.duet .duet-open {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 28px; border-radius: 999px;
+  background: #3bb5f0; color: #04121b; text-decoration: none; font-weight: 700;
+}
