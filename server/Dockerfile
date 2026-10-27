@@ -2,7 +2,7 @@ FROM node:24-alpine
 
 # The static site, exactly the files the server serves. .well-known is copied
 # by name: a dotdir is the one a wildcard COPY would be easiest to lose.
-COPY index.html app.js styles.css /site/
+COPY index.html duet.html app.js duet.js styles.css /site/
 COPY assets /site/assets
 COPY .well-known /site/.well-known
 
