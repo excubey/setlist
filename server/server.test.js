@@ -364,3 +364,16 @@ test('HEAD on a video answers with its length and no body', async () => {
   assert.equal(Number(res.headers.get('content-length')), filmBytes().length);
   assert.equal((await res.arrayBuffer()).byteLength, 0);
 });
+
+test("the Dockerfile's static COPY line ships every top-level file the site serves", () => {
+  const docker = fs.readFileSync(path.join(root, 'server', 'Dockerfile'), 'utf8');
+  const line = docker.split('\n').find((l) => /^COPY\s+index\.html\b/.test(l));
+  assert.ok(line, 'no static COPY line starting at index.html');
+  const copied = line.trim().split(/\s+/).slice(1, -1);
+  // Every top-level file app.js serves from the site root, from its own source.
+  const src = fs.readFileSync(path.join(root, 'server', 'app.js'), 'utf8');
+  const served = new Set(['index.html', 'duet.html', 'app.js', 'duet.js', 'styles.css']);
+  for (const m of src.matchAll(/'\/([\w-]+\.(?:js|css|html))'/g)) served.add(m[1]);
+  for (const m of src.matchAll(/name: '([\w-]+\.html)'/g)) served.add(m[1]);
+  for (const f of served) assert.ok(copied.includes(f), `Dockerfile COPY omits ${f}`);
+});
