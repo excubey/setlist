@@ -124,6 +124,8 @@ body.is-landing {
   gap: 16px;
   padding-top: 20px;
 }
+#landing .brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+#landing .brand-icon { width: 32px; height: 32px; border-radius: 22.5%; flex-shrink: 0; }
 #landing .wordmark {
   font-family: var(--display);
   font-weight: 700;
@@ -454,6 +456,14 @@ body.is-landing {
   padding-top: 40px;
   border-top: 1px solid var(--edge);
   text-align: center;
+}
+#landing .get-icon {
+  display: block;
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 20px;
+  border-radius: 22.5%;
+  box-shadow: 0 0 0 1px var(--edge), 0 12px 40px rgba(255, 45, 140, .18);
 }
 #landing .get-status {
   font-family: var(--display);
